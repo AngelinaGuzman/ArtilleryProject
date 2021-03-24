@@ -1,0 +1,49 @@
+config:
+  target: https://api.todoist.com
+  phases:
+    - duration: 70
+      arrivalRate: 6
+      name: "Phase 1"
+    - duration: 120
+      arrivalRate: 20
+      name: "Phase 2" 
+    - duration: 80
+      arrivalRate: 7
+      name: "Phase 3" 
+  defaults:
+    headers:
+      Authorization: Bearer {{ $processEnvironment.TOKEN }}
+      Content-type: application/json
+scenarios:
+  - flow:
+      - get:
+          url: "/rest/v1/projects"
+      - post:
+          url: "/rest/v1/projects"
+          json:
+           name: "TestAngie"
+          capture:
+           json: "$.id" 
+           as: "id"
+      - log: "Current id is {{ id }}"
+      - get:
+          url: "/rest/v1/projects/projects/{{ id }}"
+      - post:
+          url: "/rest/v1/projects/projects/{{ id }}"
+          json:
+           name: "TestWizeline"
+      - delete:
+          url: "/rest/v1/projects/projects/{{ id }}"
+      - get:
+          url: "/rest/v1/tasks/projects/projects/{{ id }}"
+      - put: 
+          url: "/rest/v1/tasks/projects/projects/{{ id }}"
+          json:
+          name: "AngieTest"
+      - post: 
+          url: "/rest/v1/tasks/projects/projects/{{ id }}/reopen"
+          json:
+          name: "ReOpen"
+      
+  # For more information: https://artillery.io/docs/script-reference/
+# For more information: https://artillery.io/docs/script-reference/
